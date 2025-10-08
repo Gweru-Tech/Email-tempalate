@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Quote - Afrimax Construction</title>
+    <style>
+        /* Include the same styles as above */
+        /* ... (same CSS as main template) ... */
+        
+        .quote-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .quote-table th,
+        .quote-table td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .quote-table th {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .quote-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .total-row {
+            background: #ffd700 !important;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Same header as main template -->
+        
+        <div class="email-content">
+            <div class="greeting">
+                Dear [Client Name],
+            </div>
+            
+            <div class="message-body">
+                <p>Thank you for requesting a quote from Afrimax Construction. We have carefully reviewed your project requirements and are pleased to provide the following detailed quotation:</p>
+                
+                <div class="highlight-box">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">📋 Project Details</h3>
+                    <p><strong>Project:</strong> [Project Name]</p>
+                    <p><strong>Location:</strong> [Project Location]</p>
+                    <p><strong>Estimated Duration:</strong> [Timeline]</p>
+                    <p><strong>Quote Valid Until:</strong> [Date]</p>
+                </div>
+                
+                <table class="quote-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price (USD)</th>
+                            <th>Total (USD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Site Preparation & Excavation</td>
+                            <td>1</td>
+                            <td>$2,500</td>
+                            <td>$2,500</td>
+                        </tr>
+                        <tr>
+                            <td>Foundation Work</td>
+                            <td>1</td>
+                            <td>$5,000</td>
+                            <td>$5,000</td>
+                        </tr>
+                        <tr>
+                            <td>Structural Framework</td>
+                            <td>1</td>
+                            <td>$8,000</td>
+                            <td>$8,000</td>
+                        </tr>
+                        <tr>
+                            <td>Roofing & Waterproofing</td>
+                            <td>1</td>
+                            <td>$4,500</td>
+                            <td>$4,500</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td colspan="3"><strong>TOTAL PROJECT COST</strong></td>
+                            <td><strong>$20,000</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="highlight-box">
+                    <h4 style="color: #1e3c72;">💰 Payment Terms</h4>
+                    <ul>
+                        <li>30% deposit upon contract signing</li>
+                        <li>40% at 50% project completion</li>
+                        <li>30% upon project completion</li>
+                    </ul>
+                    
+                    <h4 style="color: #1e3c72; margin-top: 15px;">📋 What's Included</h4>
+                    <ul>
+                        <li>All materials and labor</li>
+                        <li>Project management</li>
+                        <li>Quality assurance</li>
+                        <li>Clean-up and site restoration</li>
+                        <li>12-month warranty on workmanship</li>
+                    </ul>
+                </div>
+                
+                <p>We are committed to delivering exceptional quality within your budget and timeline. Our experienced team will ensure your project is completed to the highest standards.</p>
+                
+                <center>
+                    <a href="mailto:info@afrimax.zw?subject=Quote Acceptance - [Project Name]" class="cta-button">
+                        ✅ Accept This Quote
+                    </a>
+                </center>
+            </div>
+        </div>
+        
+        <!-- Same footer as main template -->
+    </div>
+</body>
+</html>
