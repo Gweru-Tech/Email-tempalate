@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Order - Ntando Mods{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-shopping-cart"></i> Place Your Order</h1>
+        <p>Complete the form below to order {{ product.name }}</p>
+    </div>
+</section>
+
+<section class="order-section">
+    <div class="container">
+        <div class="order-grid">
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div class="summary-card">
+                    <h3>{{ product.name }}</h3>
+                    <div class="price-display">
+                        <span class="label">Price:</span>
+                        <span class="amount">${{ product.price }}</span>
+                    </div>
+                    <h4>Features Included:</h4>
+                    <ul class="features-list">
+                        {% for feature in product.features %}
+                        <li><i class="fas fa-check"></i> {{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="total-price">
+                        <span>Total:</span>
+                        <span class="total-amount">${{ product.price }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-form-wrapper">
+                <h2>Your Information</h2>
+                <form class="order-form" method="POST" action="{{ url_for('submit_order') }}">
+                    <input type="hidden" name="product_type" value="{{ product_type }}">
+                    <input type="hidden" name="product_name" value="{{ product.name }}">
+                    <input type="hidden" name="price" value="{{ product.price }}">
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required placeholder="John Doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required placeholder="john@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="+1 234 567 8900">
+                    </div>
+                    
+                    {% if product_type == 'domain' %}
+                    <div class="form-group">
+                        <label for="notes">Desired Domain Name *</label>
+                        <input type="text" id="notes" name="notes" required placeholder="yourdomain.zone.id">
+                        <small>Enter the domain name you wish to register</small>
+                    </div>
+                    {% else %}
+                    <div class="form-group">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Any special requirements or questions?"></textarea>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" required>
+                            I agree to the Terms and Conditions
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-check"></i> Place Order
+                    </button>
+                </form>
+                
+                <div class="order-info">
+                    <p><i class="fas fa-info-circle"></i> After submitting your order, our team will contact you within 24 hours to confirm and process your payment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
