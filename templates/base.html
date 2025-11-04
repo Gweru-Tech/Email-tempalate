@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Ntando Mods - WhatsApp Bots & Domains{% endblock %}</title>
+    <title>{% block title %}Ntando Mods - WhatsApp Bots, Domains & Web Development{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -24,6 +24,7 @@
                 <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
                 <li><a href="{{ url_for('whatsapp_bots') }}" class="{% if request.endpoint == 'whatsapp_bots' %}active{% endif %}">WhatsApp Bots</a></li>
                 <li><a href="{{ url_for('domains') }}" class="{% if request.endpoint == 'domains' %}active{% endif %}">Domains</a></li>
+                <li><a href="{{ url_for('websites') }}" class="{% if request.endpoint == 'websites' %}active{% endif %}">Web Development</a></li>
                 <li><a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">About</a></li>
                 <li><a href="{{ url_for('contact') }}" class="{% if request.endpoint == 'contact' %}active{% endif %}">Contact</a></li>
                 <li><a href="{{ url_for('admin_login') }}" class="btn-admin"><i class="fas fa-lock"></i> Admin</a></li>
@@ -53,13 +54,14 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3><i class="fas fa-robot"></i> Ntando Mods</h3>
-                    <p>Your trusted source for WhatsApp bots and premium domains.</p>
+                    <p>Your trusted source for WhatsApp bots, premium domains, and professional web development.</p>
                 </div>
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="{{ url_for('whatsapp_bots') }}">WhatsApp Bots</a></li>
                         <li><a href="{{ url_for('domains') }}">Domains</a></li>
+                        <li><a href="{{ url_for('websites') }}">Web Development</a></li>
                         <li><a href="{{ url_for('about') }}">About Us</a></li>
                         <li><a href="{{ url_for('contact') }}">Contact</a></li>
                     </ul>
