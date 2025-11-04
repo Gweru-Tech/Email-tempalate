@@ -14,7 +14,10 @@
     <div class="container">
         <div class="domain-grid">
             {% for domain in domains %}
-            <div class="domain-card">
+            <div class="domain-card {% if domain.popular %}popular{% endif %}">
+                {% if domain.popular %}
+                <div class="popular-badge">Most Popular</div>
+                {% endif %}
                 <div class="domain-icon">
                     <i class="fas fa-globe fa-3x"></i>
                 </div>
@@ -35,20 +38,20 @@
         </div>
 
         <div class="info-section">
-            <h2>Why Choose .zone.id Domains?</h2>
+            <h2>Why Choose Our Domain Services?</h2>
             <div class="info-content">
                 <div class="info-item">
                     <i class="fas fa-star"></i>
                     <div>
-                        <h3>Unique Identity</h3>
-                        <p>Stand out with a memorable .zone.id domain extension.</p>
+                        <h3>Wide Selection</h3>
+                        <p>Choose from popular extensions like .com, .net, and unique options like .zone.id and .zw.</p>
                     </div>
                 </div>
                 <div class="info-item">
                     <i class="fas fa-lock"></i>
                     <div>
                         <h3>Secure Registration</h3>
-                        <p>Your domain is protected with the latest security features.</p>
+                        <p>Your domain is protected with the latest security features and privacy protection.</p>
                     </div>
                 </div>
                 <div class="info-item">
