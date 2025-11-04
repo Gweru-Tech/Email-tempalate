@@ -5,11 +5,12 @@
     <div class="container">
         <div class="hero-content">
             <h1>Welcome to Ntando Mods</h1>
-            <p class="hero-subtitle">Premium WhatsApp Bots & Domain Services</p>
-            <p>Automate your business communication and establish your online presence with our cutting-edge solutions.</p>
+            <p class="hero-subtitle">WhatsApp Bots, Premium Domains & Web Development</p>
+            <p>Automate your business communication, establish your online presence, and build professional websites with our cutting-edge solutions.</p>
             <div class="hero-buttons">
                 <a href="{{ url_for('whatsapp_bots') }}" class="btn btn-primary">Explore Bots</a>
                 <a href="{{ url_for('domains') }}" class="btn btn-secondary">Browse Domains</a>
+                <a href="{{ url_for('websites') }}" class="btn btn-secondary">Web Development</a>
             </div>
         </div>
     </div>
@@ -60,6 +61,13 @@
                 <p>Secure your perfect domain name for your online presence.</p>
                 <p class="price">Starting at $25</p>
                 <a href="{{ url_for('domains') }}" class="btn btn-outline">Browse Domains</a>
+            </div>
+            <div class="product-preview-card">
+                <i class="fas fa-code fa-3x"></i>
+                <h3>Web Development</h3>
+                <p>Professional website design and development services.</p>
+                <p class="price">Starting at $150</p>
+                <a href="{{ url_for('websites') }}" class="btn btn-outline">View Packages</a>
             </div>
         </div>
     </div>
