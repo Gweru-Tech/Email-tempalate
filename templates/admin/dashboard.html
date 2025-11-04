@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ntando Mods</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-robot"></i> Ntando Mods</h2>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="#orders" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Orders
+                </a>
+                <a href="#messages" class="nav-link">
+                    <i class="fas fa-envelope"></i> Messages
+                </a>
+                <a href="{{ url_for('index') }}" class="nav-link">
+                    <i class="fas fa-globe"></i> View Site
+                </a>
+                <a href="{{ url_for('admin_logout') }}" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Logged in as:<br><strong>{{ session.admin_username }}</strong></p>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>Dashboard Overview</h1>
+            </header>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                                <button class="close-alert">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>{{ stats.total_orders }}</h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>{{ stats.pending_orders }}</h3>
+                        <p>Pending Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>{{ stats.completed_orders }}</h3>
+                        <p>Completed Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>{{ stats.unread_messages }}</h3>
+                        <p>Unread Messages</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="orders" class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Recent Orders</h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if orders %}
+                                {% for order in orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.customer_name }}</td>
+                                    <td>{{ order.email }}</td>
+                                    <td>{{ order.phone }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ order.product_type }}">
+                                            {{ order.product_name }}
+                                        </span>
+                                    </td>
+                                    <td>${{ order.price }}</td>
+                                    <td>
+                                        <select class="status-select" data-order-id="{{ order.id }}" onchange="updateOrderStatus({{ order.id }}, this.value)">
+                                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                            <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
+                                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                        </select>
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <button class="btn-icon" onclick="viewOrderDetails({{ order.id }}, '{{ order.customer_name }}', '{{ order.email }}', '{{ order.phone }}', '{{ order.product_name }}', '{{ order.price }}', '{{ order.notes }}', '{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon btn-danger" onclick="deleteOrder({{ order.id }})" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No orders yet</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="messages" class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-envelope"></i> Contact Messages</h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if messages %}
+                                {% for message in messages %}
+                                <tr class="{% if not message.read %}unread{% endif %}">
+                                    <td>#{{ message.id }}</td>
+                                    <td>{{ message.name }}</td>
+                                    <td>{{ message.email }}</td>
+                                    <td>{{ message.subject }}</td>
+                                    <td>
+                                        <div class="message-preview">
+                                            {{ message.message[:50] }}{% if message.message|length > 50 %}...{% endif %}
+                                        </div>
+                                    </td>
+                                    <td>{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        {% if message.read %}
+                                            <span class="badge badge-success">Read</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">Unread</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn-icon" onclick="viewMessage('{{ message.name }}', '{{ message.email }}', '{{ message.subject }}', `{{ message.message }}`, {{ message.id }})" title="View Message">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% if not message.read %}
+                                        <button class="btn-icon btn-success" onclick="markAsRead({{ message.id }})" title="Mark as Read">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No messages yet</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('orderModal')">×</span>
+            <h2>Order Details</h2>
+            <div id="orderDetails"></div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('messageModal')">×</span>
+            <h2>Message Details</h2>
+            <div id="messageDetails"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function updateOrderStatus(orderId, status) {
+            fetch(`/admin/order/${orderId}/update-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `status=${status}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Order status updated successfully!', 'success');
+                }
+            });
+        }
+
+        function deleteOrder(orderId) {
+            if (confirm('Are you sure you want to delete this order?')) {
+                fetch(`/admin/order/${orderId}/delete`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Order deleted successfully!', 'success');
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function markAsRead(messageId) {
+            fetch(`/admin/message/${messageId}/mark-read`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Message marked as read!', 'success');
+                    location.reload();
+                }
+            });
+        }
+
+        function viewOrderDetails(id, name, email, phone, product, price, notes, date) {
+            const details = `
+                <div class="detail-row"><strong>Order ID:</strong> #${id}</div>
+                <div class="detail-row"><strong>Customer Name:</strong> ${name}</div>
+                <div class="detail-row"><strong>Email:</strong> ${email}</div>
+                <div class="detail-row"><strong>Phone:</strong> ${phone}</div>
+                <div class="detail-row"><strong>Product:</strong> ${product}</div>
+                <div class="detail-row"><strong>Price:</strong> $${price}</div>
+                <div class="detail-row"><strong>Date:</strong> ${date}</div>
+                <div class="detail-row"><strong>Notes:</strong> ${notes || 'N/A'}</div>
+            `;
+            document.getElementById('orderDetails').innerHTML = details;
+            document.getElementById('orderModal').style.display = 'block';
+        }
+
+        function viewMessage(name, email, subject, message, id) {
+            const details = `
+                <div class="detail-row"><strong>From:</strong> ${name}</div>
+                <div class="detail-row"><strong>Email:</strong> ${email}</div>
+                <div class="detail-row"><strong>Subject:</strong> ${subject}</div>
+                <div class="detail-row"><strong>Message:</strong><br>${message}</div>
+            `;
+            document.getElementById('messageDetails').innerHTML = details;
+            document.getElementById('messageModal').style.display = 'block';
+            markAsRead(id);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `${message}<button class="close-alert">×</button>`;
+            document.querySelector('.admin-main').insertBefore(alertDiv, document.querySelector('.stats-grid'));
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
