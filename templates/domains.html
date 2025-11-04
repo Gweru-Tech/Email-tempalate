@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Premium Domains - Ntando Mods{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-globe"></i> Premium Domains</h1>
+        <p>Establish your online presence with our premium domain offerings</p>
+    </div>
+</section>
+
+<section class="products">
+    <div class="container">
+        <div class="domain-grid">
+            {% for domain in domains %}
+            <div class="domain-card">
+                <div class="domain-icon">
+                    <i class="fas fa-globe fa-3x"></i>
+                </div>
+                <h3>{{ domain.name }}</h3>
+                <div class="price-tag">
+                    <span class="currency">$</span>
+                    <span class="amount">{{ domain.price }}</span>
+                    <span class="period">/year</span>
+                </div>
+                <ul class="features-list">
+                    {% for feature in domain.features %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('order', product_type='domain', product_id=domain.id) }}" class="btn btn-primary">Register Now</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="info-section">
+            <h2>Why Choose .zone.id Domains?</h2>
+            <div class="info-content">
+                <div class="info-item">
+                    <i class="fas fa-star"></i>
+                    <div>
+                        <h3>Unique Identity</h3>
+                        <p>Stand out with a memorable .zone.id domain extension.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-lock"></i>
+                    <div>
+                        <h3>Secure Registration</h3>
+                        <p>Your domain is protected with the latest security features.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-tools"></i>
+                    <div>
+                        <h3>Easy Management</h3>
+                        <p>Simple control panel for all your domain management needs.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <h3>SEO Friendly</h3>
+                        <p>Boost your online visibility with a professional domain.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
