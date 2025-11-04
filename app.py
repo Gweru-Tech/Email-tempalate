@@ -24,7 +24,7 @@ class Order(db.Model):
     customer_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    product_type = db.Column(db.String(50), nullable=False)  # 'bot' or 'domain'
+    product_type = db.Column(db.String(50), nullable=False)  # 'bot', 'domain', or 'website'
     product_name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending, completed, cancelled
@@ -109,6 +109,67 @@ WHATSAPP_BOTS = [
 
 DOMAINS = [
     {
+        'id': 'com',
+        'name': '.com',
+        'price': 30,
+        'features': [
+            '1 year registration',
+            'Free DNS management',
+            'Free email forwarding',
+            'Privacy protection',
+            'Easy domain management'
+        ],
+        'popular': True
+    },
+    {
+        'id': 'net',
+        'name': '.net',
+        'price': 30,
+        'features': [
+            '1 year registration',
+            'Free DNS management',
+            'Free email forwarding',
+            'Privacy protection',
+            'Easy domain management'
+        ]
+    },
+    {
+        'id': 'zw',
+        'name': '.zw',
+        'price': 30,
+        'features': [
+            '1 year registration',
+            'Free DNS management',
+            'Free email forwarding',
+            'Privacy protection',
+            'Easy domain management'
+        ]
+    },
+    {
+        'id': 'id',
+        'name': '.id',
+        'price': 30,
+        'features': [
+            '1 year registration',
+            'Free DNS management',
+            'Free email forwarding',
+            'Privacy protection',
+            'Easy domain management'
+        ]
+    },
+    {
+        'id': 'business',
+        'name': '.business',
+        'price': 30,
+        'features': [
+            '1 year registration',
+            'Free DNS management',
+            'Free email forwarding',
+            'Privacy protection',
+            'Easy domain management'
+        ]
+    },
+    {
         'id': 'zone-id',
         'name': '.zone.id',
         'price': 25,
@@ -118,6 +179,72 @@ DOMAINS = [
             'Free email forwarding',
             'Privacy protection',
             'Easy domain management'
+        ]
+    }
+]
+
+WEBSITES = [
+    {
+        'id': 'landing',
+        'name': 'Landing Page',
+        'price': 45,
+        'features': [
+            'Single page design',
+            'Responsive layout',
+            'Contact form integration',
+            'SEO optimization',
+            'Fast loading speed',
+            '1 month free support'
+        ]
+    },
+    {
+        'id': 'business',
+        'name': 'Business Website',
+        'price': 50,
+        'features': [
+            'Up to 5 pages',
+            'Custom design',
+            'Mobile responsive',
+            'Contact forms',
+            'SEO optimization',
+            'Social media integration',
+            'Google Analytics',
+            '3 months free support'
+        ],
+        'popular': True
+    },
+    {
+        'id': 'ecommerce',
+        'name': 'E-Commerce Website',
+        'price': 150,
+        'features': [
+            'Full e-commerce functionality',
+            'Product management system',
+            'Shopping cart',
+            'Payment gateway integration',
+            'Order management',
+            'Customer accounts',
+            'Inventory tracking',
+            'Mobile responsive',
+            'SEO optimization',
+            '6 months free support'
+        ]
+    },
+    {
+        'id': 'custom',
+        'name': 'Custom Website',
+        'price': 200,
+        'features': [
+            'Unlimited pages',
+            'Custom functionality',
+            'Database integration',
+            'Admin dashboard',
+            'API development',
+            'Advanced features',
+            'Complete customization',
+            'Mobile responsive',
+            'SEO optimization',
+            '1 year free support'
         ]
     }
 ]
@@ -134,6 +261,10 @@ def whatsapp_bots():
 @app.route('/domains')
 def domains():
     return render_template('domains.html', domains=DOMAINS)
+
+@app.route('/websites')
+def websites():
+    return render_template('websites.html', websites=WEBSITES)
 
 @app.route('/about')
 def about():
@@ -161,6 +292,8 @@ def order(product_type, product_id):
         product = next((bot for bot in WHATSAPP_BOTS if bot['id'] == product_id), None)
     elif product_type == 'domain':
         product = next((domain for domain in DOMAINS if domain['id'] == product_id), None)
+    elif product_type == 'website':
+        product = next((website for website in WEBSITES if website['id'] == product_id), None)
     
     if not product:
         flash('Product not found.', 'error')
