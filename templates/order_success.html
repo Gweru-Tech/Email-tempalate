@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Order Submitted - Ntando Mods{% endblock %}
+
+{% block content %}
+<section class="success-section">
+    <div class="container">
+        <div class="success-card">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Order Submitted Successfully!</h1>
+            <p class="success-message">Thank you for your order, {{ order.customer_name }}!</p>
+            
+            <div class="order-summary-box">
+                <h3>Order Summary</h3>
+                <div class="summary-details">
+                    <div class="detail-row">
+                        <span class="label">Order ID:</span>
+                        <span class="value">#{{ order.id }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Product:</span>
+                        <span class="value">{{ order.product_name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Price:</span>
+                        <span class="value">${{ order.price }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Status:</span>
+                        <span class="value badge-pending">Pending</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>What's Next?</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Our team will review your order</li>
+                    <li><i class="fas fa-check"></i> We will contact you within 24 hours</li>
+                    <li><i class="fas fa-check"></i> Payment instructions will be provided</li>
+                    <li><i class="fas fa-check"></i> Your order will be processed after payment confirmation</li>
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-whatsapp">
+                    <i class="fab fa-whatsapp"></i> Send Order to WhatsApp
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+            
+            <div class="contact-info">
+                <p><i class="fas fa-phone"></i> Need help? Contact us at <a href="tel:+263718456744">+263 71 845 6744</a></p>
+                <p><i class="fas fa-envelope"></i> Email: <a href="mailto:info@ntandomods.com">info@ntandomods.com</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.success-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.success-card {
+    background: #1e1e2e;
+    border-radius: 20px;
+    padding: 50px;
+    max-width: 700px;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.success-icon {
+    font-size: 80px;
+    color: #10b981;
+    margin-bottom: 20px;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.success-card h1 {
+    color: #fff;
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.success-message {
+    color: #b0b0b0;
+    font-size: 1.2em;
+    margin-bottom: 40px;
+}
+
+.order-summary-box {
+    background: #2d2d44;
+    border-radius: 15px;
+    padding: 30px;
+    margin: 30px 0;
+    border: 2px solid #7c3aed;
+}
+
+.order-summary-box h3 {
+    color: #7c3aed;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.summary-details {
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #3d3d54;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row .label {
+    color: #b0b0b0;
+    font-weight: 600;
+}
+
+.detail-row .value {
+    color: #fff;
+    font-weight: 700;
+}
+
+.badge-pending {
+    background: #fbbf24;
+    color: #000;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+}
+
+.next-steps {
+    margin: 40px 0;
+    padding: 30px;
+    background: #2d2d44;
+    border-radius: 15px;
+}
+
+.next-steps h3 {
+    color: #7c3aed;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.next-steps ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.next-steps ul li {
+    color: #e0e0e0;
+    padding: 12px 0;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.next-steps ul li i {
+    color: #10b981;
+    font-size: 1.2em;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 40px 0;
+}
+
+.btn {
+    padding: 15px 30px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-whatsapp {
+    background: #25D366;
+    color: #fff;
+}
+
+.btn-whatsapp:hover {
+    background: #1fb855;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+}
+
+.btn-secondary {
+    background: #6366f1;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #4f46e5;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+.contact-info {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #3d3d54;
+}
+
+.contact-info p {
+    color: #b0b0b0;
+    margin: 10px 0;
+    font-size: 1em;
+}
+
+.contact-info a {
+    color: #7c3aed;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.contact-info a:hover {
+    color: #9d5cff;
+}
+
+.contact-info i {
+    margin-right: 8px;
+    color: #7c3aed;
+}
+
+@media (max-width: 768px) {
+    .success-card {
+        padding: 30px 20px;
+    }
+
+    .success-card h1 {
+        font-size: 1.8em;
+    }
+
+    .success-icon {
+        font-size: 60px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+</style>
+{% endblock %}
