@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Web Development - Ntando Mods{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-code"></i> Web Development Services</h1>
+        <p>Professional website design and development tailored to your needs</p>
+    </div>
+</section>
+
+<section class="products">
+    <div class="container">
+        <div class="products-grid-layout">
+            {% for website in websites %}
+            <div class="product-card {% if website.popular %}popular{% endif %}">
+                {% if website.popular %}
+                <div class="popular-badge">Most Popular</div>
+                {% endif %}
+                <div class="product-header">
+                    <h3>{{ website.name }}</h3>
+                    <div class="price-tag">
+                        <span class="currency">$</span>
+                        <span class="amount">{{ website.price }}</span>
+                    </div>
+                </div>
+                <ul class="features-list">
+                    {% for feature in website.features %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('order', product_type='website', product_id=website.id) }}" class="btn btn-primary">Get Started</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="info-section">
+            <h2>Our Development Process</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3>Consultation</h3>
+                    <p>We discuss your requirements and goals to understand your vision.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3>Design</h3>
+                    <p>Our designers create mockups and wireframes for your approval.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3>Development</h3>
+                    <p>We build your website using modern technologies and best practices.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3>Launch</h3>
+                    <p>Your website goes live with full support and documentation.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Technologies We Use</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fab fa-html5 fa-3x"></i>
+                    <p>HTML5</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-css3-alt fa-3x"></i>
+                    <p>CSS3</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-js fa-3x"></i>
+                    <p>JavaScript</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-react fa-3x"></i>
+                    <p>React</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-python fa-3x"></i>
+                    <p>Python</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-node-js fa-3x"></i>
+                    <p>Node.js</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-wordpress fa-3x"></i>
+                    <p>WordPress</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-database fa-3x"></i>
+                    <p>Databases</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
