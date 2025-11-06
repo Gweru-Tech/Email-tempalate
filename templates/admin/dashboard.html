@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Ntando Mods</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin-body">
@@ -15,16 +16,28 @@
                 <p>Admin Panel</p>
             </div>
             <nav class="sidebar-nav">
-                <a href="#dashboard" class="nav-link active">
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-link active">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="#orders" class="nav-link">
+                <a href="{{ url_for('admin_orders') }}" class="nav-link">
                     <i class="fas fa-shopping-cart"></i> Orders
+                    {% if stats.pending_orders > 0 %}
+                    <span class="badge">{{ stats.pending_orders }}</span>
+                    {% endif %}
                 </a>
-                <a href="#messages" class="nav-link">
+                <a href="{{ url_for('admin_messages') }}" class="nav-link">
                     <i class="fas fa-envelope"></i> Messages
+                    {% if stats.unread_messages > 0 %}
+                    <span class="badge">{{ stats.unread_messages }}</span>
+                    {% endif %}
                 </a>
-                <a href="{{ url_for('index') }}" class="nav-link">
+                <a href="{{ url_for('admin_settings') }}" class="nav-link">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a href="{{ url_for('admin_profile') }}" class="nav-link">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="{{ url_for('index') }}" class="nav-link" target="_blank">
                     <i class="fas fa-globe"></i> View Site
                 </a>
                 <a href="{{ url_for('admin_logout') }}" class="nav-link logout">
@@ -39,6 +52,11 @@
         <main class="admin-main">
             <header class="admin-header">
                 <h1>Dashboard Overview</h1>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="location.reload()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
             </header>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -47,7 +65,7 @@
                         {% for category, message in messages %}
                             <div class="alert alert-{{ category }}">
                                 {{ message }}
-                                <button class="close-alert">×</button>
+                                <button class="close-alert" onclick="this.parentElement.remove()">×</button>
                             </div>
                         {% endfor %}
                     </div>
@@ -55,8 +73,8 @@
             {% endwith %}
 
             <section class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon blue">
+                <div class="stat-card blue">
+                    <div class="stat-icon">
                         <i class="fas fa-shopping-cart"></i>
                     </div>
                     <div class="stat-details">
@@ -64,8 +82,8 @@
                         <p>Total Orders</p>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon yellow">
+                <div class="stat-card yellow">
+                    <div class="stat-icon">
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-details">
@@ -73,8 +91,8 @@
                         <p>Pending Orders</p>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon green">
+                <div class="stat-card green">
+                    <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-details">
@@ -82,8 +100,8 @@
                         <p>Completed Orders</p>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon purple">
+                <div class="stat-card purple">
+                    <div class="stat-icon">
                         <i class="fas fa-envelope"></i>
                     </div>
                     <div class="stat-details">
@@ -91,11 +109,30 @@
                         <p>Unread Messages</p>
                     </div>
                 </div>
+                <div class="stat-card teal">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>${{ "%.2f"|format(stats.total_revenue) }}</h3>
+                        <p>Total Revenue</p>
+                    </div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>${{ "%.2f"|format(stats.pending_revenue) }}</h3>
+                        <p>Pending Revenue</p>
+                    </div>
+                </div>
             </section>
 
-            <section id="orders" class="admin-section">
+            <section class="admin-section">
                 <div class="section-header">
                     <h2><i class="fas fa-shopping-cart"></i> Recent Orders</h2>
+                    <a href="{{ url_for('admin_orders') }}" class="btn-view-all">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="table-responsive">
                     <table class="admin-table">
@@ -113,8 +150,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if orders %}
-                                {% for order in orders %}
+                            {% if orders[:10] %}
+                                {% for order in orders[:10] %}
                                 <tr>
                                     <td>#{{ order.id }}</td>
                                     <td>{{ order.customer_name }}</td>
@@ -127,16 +164,19 @@
                                     </td>
                                     <td>${{ order.price }}</td>
                                     <td>
-                                        <select class="status-select" data-order-id="{{ order.id }}" onchange="updateOrderStatus({{ order.id }}, this.value)">
+                                        <select class="status-select status-{{ order.status }}" data-order-id="{{ order.id }}" onchange="updateOrderStatus({{ order.id }}, this.value)">
                                             <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
                                             <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
                                             <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
                                         </select>
                                     </td>
                                     <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                    <td>
-                                        <button class="btn-icon" onclick="viewOrderDetails({{ order.id }}, '{{ order.customer_name }}', '{{ order.email }}', '{{ order.phone }}', '{{ order.product_name }}', '{{ order.price }}', '{{ order.notes }}', '{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}')" title="View Details">
+                                    <td class="actions-cell">
+                                        <button class="btn-icon" onclick="viewOrder({{ order.id }})" title="View Details">
                                             <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon btn-whatsapp" onclick="sendToWhatsApp({{ order.id }}, '{{ order.customer_name }}', '{{ order.email }}', '{{ order.phone }}', '{{ order.product_name }}', {{ order.price }}, '{{ order.notes }}')" title="Send to WhatsApp">
+                                            <i class="fab fa-whatsapp"></i>
                                         </button>
                                         <button class="btn-icon btn-danger" onclick="deleteOrder({{ order.id }})" title="Delete">
                                             <i class="fas fa-trash"></i>
@@ -146,7 +186,7 @@
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="9" class="text-center">No orders yet</td>
+                                    <td colspan="9" class="text-center">No orders found</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -154,9 +194,10 @@
                 </div>
             </section>
 
-            <section id="messages" class="admin-section">
+            <section class="admin-section">
                 <div class="section-header">
-                    <h2><i class="fas fa-envelope"></i> Contact Messages</h2>
+                    <h2><i class="fas fa-envelope"></i> Recent Messages</h2>
+                    <a href="{{ url_for('admin_messages') }}" class="btn-view-all">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="table-responsive">
                     <table class="admin-table">
@@ -173,9 +214,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if messages %}
-                                {% for message in messages %}
-                                <tr class="{% if not message.read %}unread{% endif %}">
+                            {% if messages[:10] %}
+                                {% for message in messages[:10] %}
+                                <tr class="{% if not message.read %}unread-row{% endif %}">
                                     <td>#{{ message.id }}</td>
                                     <td>{{ message.name }}</td>
                                     <td>{{ message.email }}</td>
@@ -193,21 +234,24 @@
                                             <span class="badge badge-warning">Unread</span>
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <button class="btn-icon" onclick="viewMessage('{{ message.name }}', '{{ message.email }}', '{{ message.subject }}', `{{ message.message }}`, {{ message.id }})" title="View Message">
+                                    <td class="actions-cell">
+                                        <button class="btn-icon" onclick="viewMessage({{ message.id }})" title="View">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         {% if not message.read %}
-                                        <button class="btn-icon btn-success" onclick="markAsRead({{ message.id }})" title="Mark as Read">
+                                        <button class="btn-icon" onclick="markAsRead({{ message.id }})" title="Mark as Read">
                                             <i class="fas fa-check"></i>
                                         </button>
                                         {% endif %}
+                                        <a href="mailto:{{ message.email }}" class="btn-icon" title="Reply">
+                                            <i class="fas fa-reply"></i>
+                                        </a>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="8" class="text-center">No messages yet</td>
+                                    <td colspan="8" class="text-center">No messages found</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -217,26 +261,8 @@
         </main>
     </div>
 
-    <!-- Order Details Modal -->
-    <div id="orderModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('orderModal')">×</span>
-            <h2>Order Details</h2>
-            <div id="orderDetails"></div>
-        </div>
-    </div>
-
-    <!-- Message Modal -->
-    <div id="messageModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('messageModal')">×</span>
-            <h2>Message Details</h2>
-            <div id="messageDetails"></div>
-        </div>
-    </div>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
+        // Update order status
         function updateOrderStatus(orderId, status) {
             fetch(`/admin/order/${orderId}/update-status`, {
                 method: 'POST',
@@ -248,11 +274,51 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('Order status updated successfully!', 'success');
+                    showNotification('Order status updated successfully!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('Failed to update order status', 'error');
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('An error occurred', 'error');
             });
         }
 
+        // View order
+        function viewOrder(orderId) {
+            window.location.href = `/admin/order/${orderId}`;
+        }
+
+        // Send to WhatsApp
+        function sendToWhatsApp(orderId, name, email, phone, product, price, notes) {
+            const message = `🔔 *NEW ORDER RECEIVED*
+
+📋 *Order Details*
+━━━━━━━━━━━━━━━
+🆔 Order ID: #${orderId}
+👤 Customer: ${name}
+📧 Email: ${email}
+📞 Phone: ${phone}
+
+🛒 *Product Information*
+━━━━━━━━━━━━━━━
+📦 Product: ${product}
+💰 Price: $${price}
+
+📝 *Notes:*
+${notes || 'No additional notes'}
+
+━━━━━━━━━━━━━━━
+Please contact the customer to confirm the order.`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/263718456744?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Delete order
         function deleteOrder(orderId) {
             if (confirm('Are you sure you want to delete this order?')) {
                 fetch(`/admin/order/${orderId}/delete`, {
@@ -261,13 +327,25 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('Order deleted successfully!', 'success');
-                        location.reload();
+                        showNotification('Order deleted successfully!', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showNotification('Failed to delete order', 'error');
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('An error occurred', 'error');
                 });
             }
         }
 
+        // View message
+        function viewMessage(messageId) {
+            window.location.href = `/admin/message/${messageId}`;
+        }
+
+        // Mark message as read
         function markAsRead(messageId) {
             fetch(`/admin/message/${messageId}/mark-read`, {
                 method: 'POST'
@@ -275,61 +353,44 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('Message marked as read!', 'success');
-                    location.reload();
+                    showNotification('Message marked as read', 'success');
+                    setTimeout(() => location.reload(), 1000);
                 }
-            });
+            })
+            .catch(error => console.error('Error:', error));
         }
 
-        function viewOrderDetails(id, name, email, phone, product, price, notes, date) {
-            const details = `
-                <div class="detail-row"><strong>Order ID:</strong> #${id}</div>
-                <div class="detail-row"><strong>Customer Name:</strong> ${name}</div>
-                <div class="detail-row"><strong>Email:</strong> ${email}</div>
-                <div class="detail-row"><strong>Phone:</strong> ${phone}</div>
-                <div class="detail-row"><strong>Product:</strong> ${product}</div>
-                <div class="detail-row"><strong>Price:</strong> $${price}</div>
-                <div class="detail-row"><strong>Date:</strong> ${date}</div>
-                <div class="detail-row"><strong>Notes:</strong> ${notes || 'N/A'}</div>
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type}`;
+            notification.innerHTML = `
+                ${message}
+                <button class="close-alert" onclick="this.parentElement.remove()">×</button>
             `;
-            document.getElementById('orderDetails').innerHTML = details;
-            document.getElementById('orderModal').style.display = 'block';
+            
+            let flashContainer = document.querySelector('.flash-messages');
+            if (!flashContainer) {
+                flashContainer = document.createElement('div');
+                flashContainer.className = 'flash-messages';
+                document.querySelector('.admin-main').insertBefore(flashContainer, document.querySelector('.admin-main').firstChild.nextSibling);
+            }
+            
+            flashContainer.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
 
-        function viewMessage(name, email, subject, message, id) {
-            const details = `
-                <div class="detail-row"><strong>From:</strong> ${name}</div>
-                <div class="detail-row"><strong>Email:</strong> ${email}</div>
-                <div class="detail-row"><strong>Subject:</strong> ${subject}</div>
-                <div class="detail-row"><strong>Message:</strong><br>${message}</div>
-            `;
-            document.getElementById('messageDetails').innerHTML = details;
-            document.getElementById('messageModal').style.display = 'block';
-            markAsRead(id);
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.innerHTML = `${message}<button class="close-alert">×</button>`;
-            document.querySelector('.admin-main').insertBefore(alertDiv, document.querySelector('.stats-grid'));
-            setTimeout(() => alertDiv.remove(), 3000);
-        }
-
-        // Sidebar navigation
-        document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                if (this.getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
-                    document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                }
+        // Auto-hide flash messages
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
             });
-        });
+        }, 5000);
     </script>
 </body>
 </html>
