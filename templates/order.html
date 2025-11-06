@@ -59,8 +59,14 @@
                     {% if product_type == 'domain' %}
                     <div class="form-group">
                         <label for="notes">Desired Domain Name *</label>
-                        <input type="text" id="notes" name="notes" required placeholder="yourdomain.zone.id">
+                        <input type="text" id="notes" name="notes" required placeholder="yourdomain{{ product.name }}">
                         <small>Enter the domain name you wish to register</small>
+                    </div>
+                    {% elif product_type == 'hosting' %}
+                    <div class="form-group">
+                        <label for="notes">Domain Name (if applicable)</label>
+                        <input type="text" id="notes" name="notes" placeholder="yourdomain.com">
+                        <small>Enter your domain name if you already have one</small>
                     </div>
                     {% else %}
                     <div class="form-group">
