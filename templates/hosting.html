@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Web Hosting - Ntando Mods{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-server"></i> Web Hosting Plans</h1>
+        <p>Reliable, fast, and secure web hosting for your website</p>
+    </div>
+</section>
+
+<section class="products">
+    <div class="container">
+        <div class="products-grid-layout">
+            {% for plan in hosting_plans %}
+            <div class="product-card {% if plan.popular %}popular{% endif %}">
+                {% if plan.popular %}
+                <div class="popular-badge">Best Value</div>
+                {% endif %}
+                <div class="product-header">
+                    <h3>{{ plan.name }}</h3>
+                    <div class="price-tag">
+                        <span class="currency">$</span>
+                        <span class="amount">{{ plan.price }}</span>
+                        <span class="period">{{ plan.period }}</span>
+                    </div>
+                </div>
+                <ul class="features-list">
+                    {% for feature in plan.features %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('order', product_type='hosting', product_id=plan.id) }}" class="btn btn-primary">Get Started</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="info-section">
+            <h2>Why Choose Our Hosting?</h2>
+            <div class="info-content">
+                <div class="info-item">
+                    <i class="fas fa-bolt"></i>
+                    <div>
+                        <h3>Lightning Fast</h3>
+                        <p>SSD storage and optimized servers ensure your site loads quickly.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h3>Secure & Protected</h3>
+                        <p>Free SSL certificates and daily backups keep your data safe.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <h3>99.9% Uptime</h3>
+                        <p>Your website stays online with our reliable infrastructure.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-headset"></i>
+                    <div>
+                        <h3>24/7 Support</h3>
+                        <p>Our expert team is always ready to help you.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
