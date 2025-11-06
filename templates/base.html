@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ site_settings.site_name }} - WhatsApp Bots, Domains & Web Development{% endblock %}</title>
+    <title>{% block title %}{{ site_settings.site_name if site_settings else 'Ntando Mods' }} - WhatsApp Bots, Domains & Web Development{% endblock %}</title>
+    <meta name="description" content="Professional WhatsApp bots, premium domains, web development, hosting services, and modded applications. Your one-stop solution for digital services.">
+    <meta name="keywords" content="WhatsApp bots, domains, web development, hosting, premium apps, modded apps">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    {% if site_settings and site_settings.logo_path %}
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename=site_settings.logo_path) }}">
+    {% endif %}
+    
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Background Music -->
@@ -13,130 +23,249 @@
     <audio id="backgroundMusic" loop>
         <source src="{{ url_for('static', filename=site_settings.background_music_path) }}" type="audio/mpeg">
     </audio>
-    <button id="musicToggle" class="music-toggle" title="Toggle Music">
+    <button id="musicToggle" class="music-toggle" title="Toggle Music" aria-label="Toggle background music">
         <i class="fas fa-volume-up"></i>
     </button>
     {% endif %}
 
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
                 <a href="{{ url_for('index') }}">
                     {% if site_settings and site_settings.logo_path %}
-                        <img src="{{ url_for('static', filename=site_settings.logo_path) }}" alt="{{ site_settings.site_name }}" class="site-logo">
+                        <img src="{{ url_for('static', filename=site_settings.logo_path) }}" alt="{{ site_settings.site_name if site_settings else 'Ntando Mods' }}" class="site-logo">
                     {% else %}
                         <i class="fas fa-robot"></i> {{ site_settings.site_name if site_settings else 'Ntando Mods' }}
                     {% endif %}
                 </a>
             </div>
-            <div class="nav-toggle" id="navToggle">
+            <div class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
-                <li><a href="{{ url_for('whatsapp_bots') }}" class="{% if request.endpoint == 'whatsapp_bots' %}active{% endif %}">WhatsApp Bots</a></li>
-                <li><a href="{{ url_for('domains') }}" class="{% if request.endpoint == 'domains' %}active{% endif %}">Domains</a></li>
-                <li><a href="{{ url_for('hosting') }}" class="{% if request.endpoint == 'hosting' %}active{% endif %}">Hosting</a></li>
-                <li><a href="{{ url_for('websites') }}" class="{% if request.endpoint == 'websites' %}active{% endif %}">Web Development</a></li>
-                <li><a href="{{ url_for('premium_apps') }}" class="{% if request.endpoint == 'premium_apps' %}active{% endif %}">Premium Apps</a></li>
-                <li><a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">About</a></li>
-                <li><a href="{{ url_for('contact') }}" class="{% if request.endpoint == 'contact' %}active{% endif %}">Contact</a></li>
-                <li><a href="{{ url_for('admin_login') }}" class="btn-admin"><i class="fas fa-lock"></i> Admin</a></li>
+                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a></li>
+                <li><a href="{{ url_for('whatsapp_bots') }}" class="{% if request.endpoint == 'whatsapp_bots' %}active{% endif %}">
+                    <i class="fab fa-whatsapp"></i> WhatsApp Bots
+                </a></li>
+                <li><a href="{{ url_for('domains') }}" class="{% if request.endpoint == 'domains' %}active{% endif %}">
+                    <i class="fas fa-globe"></i> Domains
+                </a></li>
+                <li><a href="{{ url_for('hosting') }}" class="{% if request.endpoint == 'hosting' %}active{% endif %}">
+                    <i class="fas fa-server"></i> Hosting
+                </a></li>
+                <li><a href="{{ url_for('websites') }}" class="{% if request.endpoint == 'websites' %}active{% endif %}">
+                    <i class="fas fa-code"></i> Web Development
+                </a></li>
+                <li><a href="{{ url_for('premium_apps') }}" class="{% if request.endpoint == 'premium_apps' %}active{% endif %}">
+                    <i class="fas fa-star"></i> Premium Apps
+                </a></li>
+                <li><a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">
+                    <i class="fas fa-info-circle"></i> About
+                </a></li>
+                <li><a href="{{ url_for('contact') }}" class="{% if request.endpoint == 'contact' %}active{% endif %}">
+                    <i class="fas fa-envelope"></i> Contact
+                </a></li>
+                <li>
+                    {% if session.get('admin_id') %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn-admin">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('admin_login') }}" class="btn-admin">
+                            <i class="fas fa-lock"></i> Admin
+                        </a>
+                    {% endif %}
+                </li>
             </ul>
         </div>
     </nav>
 
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="flash-messages">
+            <div class="flash-messages-container">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                        <button class="close-alert">×</button>
+                    <div class="alert alert-{{ category }}" role="alert">
+                        <span class="alert-message">{{ message }}</span>
+                        <button class="close-alert" aria-label="Close alert">×</button>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
 
+    <!-- Main Content -->
     <main>
         {% block content %}{% endblock %}
     </main>
 
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/263718456744?text=Hello!%20I'm%20interested%20in%20your%20services" 
+       class="whatsapp-float" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       aria-label="Contact us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="scroll-to-top" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>
                         {% if site_settings and site_settings.logo_path %}
-                            <img src="{{ url_for('static', filename=site_settings.logo_path) }}" alt="{{ site_settings.site_name }}" class="footer-logo">
+                            <img src="{{ url_for('static', filename=site_settings.logo_path) }}" 
+                                 alt="{{ site_settings.site_name if site_settings else 'Ntando Mods' }}" 
+                                 class="footer-logo">
                         {% else %}
                             <i class="fas fa-robot"></i> {{ site_settings.site_name if site_settings else 'Ntando Mods' }}
                         {% endif %}
                     </h3>
-                    <p>Your trusted source for WhatsApp bots, premium domains, web development, and modded applications.</p>
+                    <p>Your trusted source for WhatsApp bots, premium domains, web development, hosting services, and modded applications.</p>
+                    <div class="footer-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span>500+ Happy Clients</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>1000+ Projects Completed</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Our Services</h4>
+                    <ul>
+                        <li><a href="{{ url_for('whatsapp_bots') }}"><i class="fas fa-chevron-right"></i> WhatsApp Bots</a></li>
+                        <li><a href="{{ url_for('domains') }}"><i class="fas fa-chevron-right"></i> Premium Domains</a></li>
+                        <li><a href="{{ url_for('hosting') }}"><i class="fas fa-chevron-right"></i> Web Hosting</a></li>
+                        <li><a href="{{ url_for('websites') }}"><i class="fas fa-chevron-right"></i> Web Development</a></li>
+                        <li><a href="{{ url_for('premium_apps') }}"><i class="fas fa-chevron-right"></i> Premium Apps</a></li>
+                    </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="{{ url_for('whatsapp_bots') }}">WhatsApp Bots</a></li>
-                        <li><a href="{{ url_for('domains') }}">Domains</a></li>
-                        <li><a href="{{ url_for('hosting') }}">Hosting</a></li>
-                        <li><a href="{{ url_for('websites') }}">Web Development</a></li>
-                        <li><a href="{{ url_for('premium_apps') }}">Premium Apps</a></li>
-                        <li><a href="{{ url_for('about') }}">About Us</a></li>
-                        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                        <li><a href="{{ url_for('about') }}"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                        <li><a href="{{ url_for('contact') }}"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> FAQ</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Contact Info</h4>
-                    <p><i class="fas fa-envelope"></i> info@ntandomods.com</p>
-                    <p><i class="fas fa-phone"></i> +1 234 567 8900</p>
+                    <ul class="contact-info">
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:info@ntandomods.com">info@ntandomods.com</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <a href="tel:+263718456744">+263 71 845 6744</a>
+                        </li>
+                        <li>
+                            <i class="fab fa-whatsapp"></i>
+                            <a href="https://wa.me/263718456744" target="_blank">WhatsApp Us</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Zimbabwe</span>
+                        </li>
+                    </ul>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/263718456744" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2024 {{ site_settings.site_name if site_settings else 'Ntando Mods' }}. All rights reserved.</p>
+                <p>© {{ now.year if now else '2024' }} {{ site_settings.site_name if site_settings else 'Ntando Mods' }}. All rights reserved.</p>
+                <p class="footer-credit">Designed & Developed by <a href="{{ url_for('index') }}">Ntando Mods</a></p>
             </div>
         </div>
     </footer>
 
+    <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
     <!-- Background Music Control Script -->
     {% if site_settings and site_settings.music_enabled and site_settings.background_music_path %}
     <script>
-        const music = document.getElementById('backgroundMusic');
-        const musicToggle = document.getElementById('musicToggle');
-        let isPlaying = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            const musicToggle = document.getElementById('musicToggle');
+            let isPlaying = false;
+            let userInteracted = false;
 
-        musicToggle.addEventListener('click', function() {
-            if (isPlaying) {
-                music.pause();
-                musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
-            } else {
-                music.play();
-                musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+            function toggleMusic() {
+                if (isPlaying) {
+                    music.pause();
+                    musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    musicToggle.classList.add('muted');
+                } else {
+                    music.play().catch(err => console.log('Audio play failed:', err));
+                    musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    musicToggle.classList.remove('muted');
+                }
+                isPlaying = !isPlaying;
             }
-            isPlaying = !isPlaying;
+
+            musicToggle.addEventListener('click', toggleMusic);
+
+            // Auto-play on first user interaction
+            function playOnInteraction() {
+                if (!userInteracted) {
+                    userInteracted = true;
+                    music.play().then(() => {
+                        isPlaying = true;
+                        musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    }).catch(err => console.log('Auto-play prevented:', err));
+                }
+            }
+
+            document.addEventListener('click', playOnInteraction, { once: true });
+            document.addEventListener('keydown', playOnInteraction, { once: true });
         });
-
-        // Auto-play on user interaction
-        document.addEventListener('click', function() {
-            if (!isPlaying) {
-                music.play();
-                musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
-                isPlaying = true;
-            }
-        }, { once: true });
     </script>
     {% endif %}
+
+    <!-- Scroll to Top Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollBtn = document.getElementById('scrollToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    scrollBtn.classList.add('visible');
+                } else {
+                    scrollBtn.classList.remove('visible');
+                }
+            });
+
+            scrollBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
