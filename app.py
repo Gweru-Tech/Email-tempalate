@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 from functools import wraps
+import urllib.parse
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
@@ -12,6 +13,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# WhatsApp Configuration
+WHATSAPP_NUMBER = "263718456744"  # Your WhatsApp number
 
 # Create upload folders if they don't exist
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'logos'), exist_ok=True)
@@ -25,6 +29,7 @@ class Admin(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -53,6 +58,7 @@ class SiteSettings(db.Model):
     background_music_path = db.Column(db.String(200))
     music_enabled = db.Column(db.Boolean, default=False)
     site_name = db.Column(db.String(100), default='Ntando Mods')
+    whatsapp_notifications = db.Column(db.Boolean, default=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class CustomFeature(db.Model):
@@ -82,6 +88,37 @@ with app.app_context():
         settings = SiteSettings()
         db.session.add(settings)
         db.session.commit()
+
+# Helper function to send WhatsApp notification
+def send_whatsapp_notification(order):
+    """Generate WhatsApp message for new order"""
+    message = f"""🔔 *NEW ORDER RECEIVED*
+
+📋 *Order Details*
+━━━━━━━━━━━━━━━
+🆔 Order ID: #{order.id}
+👤 Customer: {order.customer_name}
+📧 Email: {order.email}
+📞 Phone: {order.phone}
+
+🛒 *Product Information*
+━━━━━━━━━━━━━━━
+📦 Product: {order.product_name}
+🏷️ Type: {order.product_type.upper()}
+💰 Price: ${order.price}
+
+📝 *Notes:*
+{order.notes if order.notes else 'No additional notes'}
+
+⏰ Order Time: {order.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+
+━━━━━━━━━━━━━━━
+Please contact the customer to confirm the order.
+"""
+    
+    encoded_message = urllib.parse.quote(message)
+    whatsapp_url = f"https://wa.me/{WHATSAPP_NUMBER}?text={encoded_message}"
+    return whatsapp_url
 
 # Login required decorator
 def login_required(f):
@@ -456,108 +493,6 @@ PREMIUM_APPS = [
             'Lifetime updates',
             'Installation guide'
         ]
-    },
-    {
-        'id': 'lightroom',
-        'name': 'Adobe Lightroom Mod',
-        'price': 10,
-        'icon': 'fas fa-camera-retro',
-        'color': '#31A8FF',
-        'features': [
-            'Professional photo editing',
-            'Premium presets',
-            'Cloud sync',
-            'Advanced filters',
-            'RAW editing',
-            'Modded by Ntando Mods',
-            'Lifetime updates',
-            'Installation support'
-        ]
-    },
-    {
-        'id': 'duolingo-plus',
-        'name': 'Duolingo Plus Mod',
-        'price': 10,
-        'icon': 'fas fa-language',
-        'color': '#58CC02',
-        'features': [
-            'Ad-free learning',
-            'Unlimited hearts',
-            'Offline lessons',
-            'Progress tracking',
-            'All languages unlocked',
-            'Modded by Ntando Mods',
-            'Lifetime updates',
-            'Installation support'
-        ]
-    },
-    {
-        'id': 'picsart',
-        'name': 'PicsArt Gold Mod',
-        'price': 10,
-        'icon': 'fas fa-paint-brush',
-        'color': '#F84A81',
-        'features': [
-            'Premium filters',
-            'Ad-free experience',
-            'Advanced editing tools',
-            'Unlimited stickers',
-            'HD export',
-            'Modded by Ntando Mods',
-            'Lifetime updates',
-            'Installation support'
-        ]
-    },
-    {
-        'id': 'winrar',
-        'name': 'WinRAR Premium Mod',
-        'price': 10,
-        'icon': 'fas fa-file-archive',
-        'color': '#0066CC',
-        'features': [
-            'Unlimited compression',
-            'Password protection',
-            'Multi-format support',
-            'Fast extraction',
-            'No trial limitations',
-            'Modded by Ntando Mods',
-            'Lifetime updates',
-            'Installation guide'
-        ]
-    },
-    {
-        'id': 'zoom-pro',
-        'name': 'Zoom Pro Mod',
-        'price': 10,
-        'icon': 'fas fa-video',
-        'color': '#2D8CFF',
-        'features': [
-            'Unlimited meeting time',
-            'Screen sharing',
-            'Recording features',
-            'Virtual backgrounds',
-            'Up to 300 participants',
-            'Modded by Ntando Mods',
-            'Lifetime updates',
-            'Installation support'
-        ]
-    },
-    {
-        'id': 'grammarly',
-        'name': 'Grammarly Premium Mod',
-        'price': 10,
-        'icon': 'fas fa-spell-check',
-        'color': '#15C39A',
-        'features': [
-            'Advanced grammar checks',
-            'Plagiarism detector',
-            'Style suggestions',
-            'Vocabulary enhancement',
-            'Tone detector',
-            'Modded by Ntando Mods',
-            'Lifetime updates',
-            'Installation support'
-        ]
     }
 ]
 
@@ -645,8 +580,12 @@ def submit_order():
     )
     db.session.add(order)
     db.session.commit()
+    
+    # Generate WhatsApp notification URL
+    whatsapp_url = send_whatsapp_notification(order)
+    
     flash('Order submitted successfully! We will contact you soon.', 'success')
-    return redirect(url_for('index'))
+    return render_template('order_success.html', order=order, whatsapp_url=whatsapp_url)
 
 # Admin Routes
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -682,10 +621,31 @@ def admin_dashboard():
         'total_orders': Order.query.count(),
         'pending_orders': Order.query.filter_by(status='pending').count(),
         'completed_orders': Order.query.filter_by(status='completed').count(),
-        'unread_messages': ContactMessage.query.filter_by(read=False).count()
+        'unread_messages': ContactMessage.query.filter_by(read=False).count(),
+        'total_revenue': db.session.query(db.func.sum(Order.price)).filter_by(status='completed').scalar() or 0,
+        'pending_revenue': db.session.query(db.func.sum(Order.price)).filter_by(status='pending').scalar() or 0
     }
     
     return render_template('admin/dashboard.html', orders=orders, messages=messages, stats=stats)
+
+@app.route('/admin/orders')
+@login_required
+def admin_orders():
+    status_filter = request.args.get('status', 'all')
+    
+    if status_filter == 'all':
+        orders = Order.query.order_by(Order.created_at.desc()).all()
+    else:
+        orders = Order.query.filter_by(status=status_filter).order_by(Order.created_at.desc()).all()
+    
+    return render_template('admin/orders.html', orders=orders, status_filter=status_filter)
+
+@app.route('/admin/order/<int:order_id>')
+@login_required
+def admin_order_detail(order_id):
+    order = Order.query.get_or_404(order_id)
+    whatsapp_url = send_whatsapp_notification(order)
+    return render_template('admin/order_detail.html', order=order, whatsapp_url=whatsapp_url)
 
 @app.route('/admin/order/<int:order_id>/update-status', methods=['POST'])
 @login_required
@@ -703,11 +663,42 @@ def delete_order(order_id):
     db.session.commit()
     return jsonify({'success': True})
 
+@app.route('/admin/messages')
+@login_required
+def admin_messages():
+    read_filter = request.args.get('read', 'all')
+    
+    if read_filter == 'all':
+        messages = ContactMessage.query.order_by(ContactMessage.created_at.desc()).all()
+    elif read_filter == 'unread':
+        messages = ContactMessage.query.filter_by(read=False).order_by(ContactMessage.created_at.desc()).all()
+    else:
+        messages = ContactMessage.query.filter_by(read=True).order_by(ContactMessage.created_at.desc()).all()
+    
+    return render_template('admin/messages.html', messages=messages, read_filter=read_filter)
+
+@app.route('/admin/message/<int:message_id>')
+@login_required
+def admin_message_detail(message_id):
+    message = ContactMessage.query.get_or_404(message_id)
+    if not message.read:
+        message.read = True
+        db.session.commit()
+    return render_template('admin/message_detail.html', message=message)
+
 @app.route('/admin/message/<int:message_id>/mark-read', methods=['POST'])
 @login_required
 def mark_message_read(message_id):
     message = ContactMessage.query.get_or_404(message_id)
     message.read = True
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/admin/message/<int:message_id>/delete', methods=['POST'])
+@login_required
+def delete_message(message_id):
+    message = ContactMessage.query.get_or_404(message_id)
+    db.session.delete(message)
     db.session.commit()
     return jsonify({'success': True})
 
@@ -719,6 +710,7 @@ def admin_settings():
     if request.method == 'POST':
         settings.site_name = request.form.get('site_name', 'Ntando Mods')
         settings.music_enabled = 'music_enabled' in request.form
+        settings.whatsapp_notifications = 'whatsapp_notifications' in request.form
         
         # Handle logo upload
         if 'logo' in request.files:
@@ -743,6 +735,28 @@ def admin_settings():
         return redirect(url_for('admin_settings'))
     
     return render_template('admin/settings.html', settings=settings)
+
+@app.route('/admin/profile', methods=['GET', 'POST'])
+@login_required
+def admin_profile():
+    admin = Admin.query.get(session['admin_id'])
+    
+    if request.method == 'POST':
+        admin.email = request.form['email']
+        
+        if request.form.get('new_password'):
+            if check_password_hash(admin.password, request.form['current_password']):
+                admin.password = generate_password_hash(request.form['new_password'])
+                flash('Password updated successfully!', 'success')
+            else:
+                flash('Current password is incorrect.', 'error')
+                return redirect(url_for('admin_profile'))
+        
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('admin_profile'))
+    
+    return render_template('admin/profile.html', admin=admin)
 
 if __name__ == '__main__':
     app.run(debug=True)
