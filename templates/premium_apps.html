@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Premium Modded Apps - Ntando Mods{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-mobile-alt"></i> Premium Modded Applications</h1>
+        <p>Get access to premium features of your favorite apps - Modded by Ntando Mods</p>
+    </div>
+</section>
+
+<section class="products">
+    <div class="container">
+        <div class="apps-grid">
+            {% for app in apps %}
+            <div class="app-card {% if app.popular %}popular{% endif %}" style="border-top: 4px solid {{ app.color }}">
+                {% if app.popular %}
+                <div class="popular-badge">Most Popular</div>
+                {% endif %}
+                <div class="app-icon" style="color: {{ app.color }}">
+                    <i class="{{ app.icon }} fa-4x"></i>
+                </div>
+                <h3>{{ app.name }}</h3>
+                <div class="price-tag">
+                    <span class="currency">$</span>
+                    <span class="amount">{{ app.price }}</span>
+                    <span class="period">/lifetime</span>
+                </div>
+                <ul class="features-list">
+                    {% for feature in app.features %}
+                    <li><i class="fas fa-check"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('order', product_type='app', product_id=app.id) }}" class="btn btn-primary">Get Now</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="info-section">
+            <h2>Why Choose Our Modded Apps?</h2>
+            <div class="info-content">
+                <div class="info-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h3>Safe & Secure</h3>
+                        <p>All apps are tested and verified to be safe from malware and viruses.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-sync-alt"></i>
+                    <div>
+                        <h3>Lifetime Updates</h3>
+                        <p>Get free updates whenever new versions are released.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-headset"></i>
+                    <div>
+                        <h3>Installation Support</h3>
+                        <p>We provide step-by-step installation guides and support.</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-dollar-sign"></i>
+                    <div>
+                        <h3>One-Time Payment</h3>
+                        <p>Pay once and enjoy premium features forever - no subscriptions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning-section">
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Important Notice</h3>
+                <p>These are modified versions of applications. While we ensure they are safe and functional, please note:</p>
+                <ul>
+                    <li>Use at your own discretion</li>
+                    <li>We are not affiliated with the original app developers</li>
+                    <li>Some apps may require specific installation methods</li>
+                    <li>We provide full installation support for all purchases</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
